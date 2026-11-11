@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "generate_probe.py": {
+      "arguments": {
+        "--input":  {"type": "input_path",  "required": true},
+        "--output": {"type": "output_path", "required": true}
+      }
+    },
+    "generate_aggregate_probe.py": {
+      "arguments": {
+        "--manifest": {"type": "input_path",  "required": true},
+        "--output":   {"type": "output_path", "required": true}
+      }
+    }
+  }
+}
