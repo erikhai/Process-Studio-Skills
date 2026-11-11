@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "generate_dependency.py": {
+      "arguments": {
+        "--input":  {"type": "input_path",  "required": true},
+        "--output": {"type": "output_path", "required": true}
+      }
+    },
+    "generate_aggregate_dependency_graph.py": {
+      "arguments": {
+        "--manifest": {"type": "input_path",  "required": true},
+        "--output":   {"type": "output_path", "required": true}
+      }
+    }
+  }
+}

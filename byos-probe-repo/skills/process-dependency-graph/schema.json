@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Process dependency graph, data shapes",
+  "description": "Documentation and test-time reference only. The scripts do not read this file at run time.",
+  "definitions": {
+    "page_record": {
+      "description": "One file per wiki page, written by scripts/generate_dependency.py and read by the aggregate script.",
+      "type": "object",
+      "required": ["schema_version", "doc_id", "doc_id_source", "doc_type", "title", "chars",
+                   "truncated_suspected", "refs", "lineage", "ignored", "warnings"],
+      "properties": {
+        "schema_version": {"type": "integer", "const": 1},
+        "doc_id": {"type": "string", "description": "Canonical ID, or NOID-<slug> when the page carries none."},
+        "doc_id_source": {"enum": ["frontmatter", "frontmatter-title", "h1", "label", "first-line", "slug-fallback"]},
+        "doc_type": {"type": "string", "description": "procedure, form, policy or document."},
+        "title": {"type": ["string", "null"]},
+        "chars": {"type": "integer"},
+        "truncated_suspected": {"type": "boolean"},
+        "refs": {"type": "array", "items": {"$ref": "#/definitions/reference"}},
+        "lineage": {"type": "array", "items": {"type": "string"},
+                    "description": "IDs named as superseded or replaced. Recorded, never turned into edges."},
+        "ignored": {
+          "type": "object",
+          "required": ["self_references", "change_log_references", "lineage_references", "stoplisted_ids"],
+          "additionalProperties": {"type": "integer"}
+        },
+        "warnings": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "reference": {
+      "type": "object",
+      "required": ["target", "kind", "relation", "zone", "confidence", "raw", "line", "mentions"],
+      "properties": {
+        "target": {"type": "string", "description": "Canonical ID, or canonical system name."},
+        "kind": {"type": "string", "description": "procedure, form, policy, document or system."},
+        "relation": {"enum": ["depends_on", "depended_on_by"],
+                     "description": "depended_on_by means this page says the target depends on it."},
+        "zone": {"enum": ["body", "related"]},
+        "confidence": {"enum": ["exact", "normalised"]},
+        "raw": {"type": "string", "description": "The text as written on the page."},
+        "line": {"type": "integer"},
+        "section": {"type": ["string", "null"]},
+        "revision": {"type": ["string", "null"]},
+        "context": {"type": "string"},
+        "mentions": {"type": "integer"}
+      }
+    },
+    "graph": {
+      "description": "Graph data embedded at the end of the report. Edges point from dependent to dependency.",
+      "type": "object",
+      "required": ["nodes", "edges"],
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "kind", "type", "dependents", "dependencies", "blast_radius", "cycle", "tier"],
+            "properties": {
+              "id": {"type": "string"},
+              "kind": {"enum": ["document", "unresolved", "system"]},
+              "type": {"type": "string"},
+              "title": {"type": ["string", "null"]},
+              "dependents": {"type": "integer"},
+              "dependencies": {"type": "integer"},
+              "blast_radius": {"type": "integer"},
+              "cycle": {"type": ["integer", "null"]},
+              "tier": {"type": ["integer", "null"]}
+            }
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["from", "to", "mentions", "confidence"],
+            "properties": {
+              "from": {"type": "string"},
+              "to": {"type": "string"},
+              "mentions": {"type": "integer"},
+              "confidence": {"enum": ["exact", "normalised"]}
+            }
+          }
+        }
+      }
+    }
+  }
+}
